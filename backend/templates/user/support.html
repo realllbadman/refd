@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Support{% endblock %}
+{% block content %}
+<div data-user-page="support"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">My account</p>
+    <h1 class="page-title">Support</h1>
+    <p class="muted">Ask a question or report a problem. Replies from the team appear below your message. You can also email <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+  </div>
+</div>
+
+<div class="grid grid--support">
+  <section class="card card--padded" aria-labelledby="new-msg">
+    <h2 id="new-msg" class="section-title">New message</h2>
+    <form class="form" data-support-form novalidate>
+      <div class="field">
+        <label class="field__label" for="s-subject">Subject</label>
+        <input class="input" id="s-subject" name="subject" maxlength="120" required>
+        <p class="field__error" data-error-for="subject" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="s-body">Message</label>
+        <textarea class="input textarea" id="s-body" name="body" rows="6" maxlength="4000" required data-counter="s-body-count"></textarea>
+        <p class="field__hint"><span id="s-body-count">0</span> / 4000 · Never include your password.</p>
+        <p class="field__error" data-error-for="body" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="s-email">Email <span class="muted">(optional)</span></label>
+        <input class="input" id="s-email" name="email" type="email" maxlength="120" autocomplete="email">
+        <p class="field__hint">So we can confirm we got your message and reply by email.</p>
+        <p class="field__error" data-error-for="email" hidden></p>
+      </div>
+      <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Send message</span></button>
+    </form>
+  </section>
+
+  <section class="card" aria-labelledby="my-msgs">
+    <div class="card__header">
+      <h2 id="my-msgs" class="section-title">My messages</h2>
+    </div>
+    <div data-messages aria-live="polite"></div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/dashboard.js') }}" defer></script>{% endblock %}

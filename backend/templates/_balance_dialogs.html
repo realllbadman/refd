@@ -1,0 +1,93 @@
+{# Balance change dialog: form step -> confirmation step. Shared by admin pages. #}
+<dialog class="dialog" id="balance-dialog" aria-labelledby="balance-dialog-title">
+  <form class="dialog__body" data-balance-form novalidate>
+    <header class="dialog__header">
+      <h2 class="dialog__title" id="balance-dialog-title">Change balance</h2>
+      <button type="button" class="icon-btn" data-dialog-close aria-label="Close">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <div data-step="edit">
+      <div class="summary-strip">
+        <div><span class="summary-strip__label">Account</span><span data-bal-account>—</span></div>
+        <div><span class="summary-strip__label">Current balance</span><span class="num" data-bal-current>—</span></div>
+      </div>
+
+      <fieldset class="segmented">
+        <legend class="field__label">Operation</legend>
+        <label class="segmented__option">
+          <input type="radio" name="mode" value="set" checked>
+          <span>Set balance to</span>
+        </label>
+        <label class="segmented__option">
+          <input type="radio" name="mode" value="adjust">
+          <span>Adjust by</span>
+        </label>
+      </fieldset>
+
+      <div class="field">
+        <label class="field__label" for="bal-amount" data-amount-label>Target balance (USD)</label>
+        <div class="input-affix">
+          <span class="input-affix__prefix" aria-hidden="true">$</span>
+          <input class="input mono" id="bal-amount" name="amount" type="text" inputmode="decimal"
+                 autocomplete="off" placeholder="0.00" maxlength="20" aria-describedby="bal-amount-hint" required>
+        </div>
+        <p class="field__hint" id="bal-amount-hint" data-amount-hint>Up to two decimal places. Example: 1250.00</p>
+        <p class="field__error" data-error-for="amount" hidden></p>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="bal-reason">Reason <span class="muted">(optional)</span></label>
+        <input class="input" id="bal-reason" name="reason" type="text" maxlength="200" autocomplete="off"
+               placeholder="e.g. Account balance correction">
+        <p class="field__error" data-error-for="reason" hidden></p>
+      </div>
+
+      <p class="field__hint">
+        {% if allow_negative %}Negative resulting balances are permitted (ALLOW_NEGATIVE=1).
+        {% else %}Changes that would produce a negative balance are rejected.{% endif %}
+      </p>
+    </div>
+
+    <div data-step="confirm" hidden>
+      <p class="muted">Review this change carefully. The server recalculates it against the latest balance when you confirm.</p>
+      <dl class="review">
+        <div><dt>Account</dt><dd data-review-account></dd></div>
+        <div><dt>Operation</dt><dd data-review-mode></dd></div>
+        <div><dt>Previous balance</dt><dd class="num" data-review-previous></dd></div>
+        <div><dt data-review-requested-label>Requested</dt><dd class="num" data-review-requested></dd></div>
+        <div class="review__total"><dt>Resulting balance</dt><dd class="num" data-review-result></dd></div>
+        <div><dt>Reason</dt><dd data-review-reason></dd></div>
+      </dl>
+    </div>
+
+    <div class="alert alert--error" role="alert" data-dialog-error hidden></div>
+
+    <footer class="dialog__footer">
+      <button type="button" class="btn btn--secondary" data-dialog-close data-step-edit-only>Cancel</button>
+      <button type="button" class="btn btn--secondary" data-back hidden>Back</button>
+      <button type="submit" class="btn btn--primary" data-submit>
+        <span class="spinner" aria-hidden="true"></span>
+        <span data-label>Review change</span>
+      </button>
+    </footer>
+  </form>
+</dialog>
+
+<dialog class="dialog dialog--sm" id="confirm-dialog" aria-labelledby="confirm-dialog-title">
+  <div class="dialog__body">
+    <header class="dialog__header">
+      <h2 class="dialog__title" id="confirm-dialog-title" data-confirm-title>Are you sure?</h2>
+    </header>
+    <p data-confirm-message></p>
+    <div class="alert alert--error" role="alert" data-dialog-error hidden></div>
+    <footer class="dialog__footer">
+      <button type="button" class="btn btn--secondary" data-dialog-close>Cancel</button>
+      <button type="button" class="btn btn--danger" data-confirm-ok>
+        <span class="spinner" aria-hidden="true"></span>
+        <span data-label>Confirm</span>
+      </button>
+    </footer>
+  </div>
+</dialog>

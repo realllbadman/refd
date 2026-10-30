@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}{{ account.username }}{% endblock %}
+{% block content %}
+<div data-admin-page="detail"
+     data-user-id="{{ account.id }}"
+     data-current-admin-id="{{ current_user.id }}"
+     data-allow-negative="{{ 1 if allow_negative else 0 }}"
+     data-max-cents="{{ max_amount_cents }}"></div>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="/admin">Accounts</a></li>
+    <li aria-current="page">{{ account.username }}</li>
+  </ol>
+</nav>
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow mono">Account #{{ account.id }}</p>
+    <h1 class="page-title">
+      {{ account.username }}
+      <span class="badge badge--{{ account.status }}" data-status-badge>{{ account.status | capitalize }}</span>
+      {% if account.is_admin %}<span class="badge badge--role">Administrator</span>{% endif %}
+    </h1>
+    {% if account.display_name %}<p class="muted">{{ account.display_name }}</p>{% endif %}
+  </div>
+  <div class="button-row">
+    <a class="btn btn--secondary btn--sm" href="/api/admin/activity/export.csv?user_id={{ account.id }}">{{ icon("download", 16) }} Export history</a>
+    {% if account.id != current_user.id %}
+    <button type="button" class="btn btn--secondary btn--sm" data-reset-password>{{ icon("key", 16) }} Reset password</button>
+    {% if account.totp_secret %}
+    <button type="button" class="btn btn--secondary btn--sm" data-reset-totp>{{ icon("shield", 16) }} Reset two-step sign-in</button>
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid--overview">
+  <section class="card balance-card" aria-labelledby="balance-heading">
+    <h2 id="balance-heading" class="balance-card__label">Current balance</h2>
+    <p class="balance-card__amount" data-balance aria-live="polite">{{ account.balance_cents | money }}</p>
+    <p class="balance-card__meta">
+      Last updated <time data-ts="{{ account.updated_at | iso_utc }}" data-balance-updated>{{ account.updated_at | utc_display }}</time>
+    </p>
+    {% if not account.is_admin %}
+    <div class="button-row">
+      <button type="button" class="btn btn--light" data-balance-action="set">Set balance</button>
+      <button type="button" class="btn btn--light" data-balance-action="adjust">Adjust balance</button>
+    </div>
+    {% else %}
+    <p class="balance-card__note">Administrator accounts do not hold ledger balances.</p>
+    {% endif %}
+  </section>
+
+  <section class="card card--padded" aria-labelledby="account-heading">
+    <h2 id="account-heading" class="section-title">Account details</h2>
+    <dl class="details">
+      <div><dt>Username</dt><dd>{{ account.username }}</dd></div>
+      <div><dt>Account ID</dt><dd class="mono">#{{ account.id }}</dd></div>
+      <div><dt>Role</dt><dd>{{ 'Administrator' if account.is_admin else 'Account holder' }}</dd></div>
+      <div><dt>Status</dt><dd><span class="badge badge--{{ account.status }}" data-status-badge>{{ account.status | capitalize }}</span></dd></div>
+      <div><dt>Created</dt><dd><time data-ts="{{ account.created_at | iso_utc }}">{{ account.created_at | utc_display }}</time></dd></div>
+      <div><dt>Last updated</dt><dd><time data-ts="{{ account.updated_at | iso_utc }}" data-updated-at>{{ account.updated_at | utc_display }}</time></dd></div>
+      <div><dt>Last sign-in</dt><dd>{% if account.last_login_at %}<time data-ts="{{ account.last_login_at | iso_utc }}">{{ account.last_login_at | utc_display }}</time>{% else %}Never{% endif %}</dd></div>
+      <div><dt>Created by</dt><dd>{{ 'Self sign-up' if account.signup_source == 'self' else 'Administrator' }}</dd></div>
+      {% if account.is_admin %}<div><dt>Two-step sign-in</dt><dd data-totp-state>{{ 'On' if account.totp_secret else 'Off' }}</dd></div>{% endif %}
+    </dl>
+    {% if account.id != current_user.id %}
+    <div class="button-row button-row--top">
+      <button type="button" class="btn btn--danger-outline" data-status-action="inactive" {% if account.status != 'active' %}hidden{% endif %}>Deactivate account</button>
+      <button type="button" class="btn btn--secondary" data-status-action="active" {% if account.status == 'active' %}hidden{% endif %}>Reactivate account</button>
+    </div>
+    {% else %}
+    <p class="field__hint">This is your own account. You cannot deactivate it.</p>
+    {% endif %}
+  </section>
+</div>
+
+<section class="card" aria-labelledby="notes-heading">
+  <div class="card__header">
+    <div>
+      <h2 id="notes-heading" class="section-title">{{ icon("note") }} Internal notes</h2>
+      <p class="muted small">Visible to administrators only — never shown to the account holder.</p>
+    </div>
+  </div>
+  <form class="note-form" data-note-form novalidate>
+    <label class="visually-hidden" for="note-body">New note</label>
+    <textarea class="input textarea" id="note-body" name="body" rows="2" maxlength="1000" placeholder="Add a note about this account…"></textarea>
+    <button type="submit" class="btn btn--primary btn--sm" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Add note</span></button>
+  </form>
+  <ul class="notes" data-notes aria-live="polite"></ul>
+</section>
+
+<section class="card" aria-labelledby="activity-heading">
+  <div class="card__header">
+    <div>
+      <h2 id="activity-heading" class="section-title">Balance activity</h2>
+      <p class="muted small">Append-only history, newest first. Times shown in your local time.</p>
+    </div>
+  </div>
+  <div data-activity
+       data-endpoint="/api/admin/users/{{ account.id }}/activity/"
+       data-variant="admin"
+       data-empty-title="No balance activity"
+       data-empty-text="Balance changes made to this account will be listed here."></div>
+</section>
+{% endblock %}
+{% block dialogs %}
+{% include "_balance_dialogs.html" %}
+<dialog class="dialog dialog--sm" id="reset-dialog" aria-labelledby="reset-title">
+  <div class="dialog__body">
+    <header class="dialog__header"><h2 class="dialog__title" id="reset-title">Temporary password</h2></header>
+    <div class="alert alert--success" role="status">The password for <strong>{{ account.username }}</strong> was reset and all of their sessions were signed out.</div>
+    <div class="secret">
+      <div class="secret__row"><code class="secret__value" data-reset-value></code>
+        <button type="button" class="btn btn--secondary btn--sm" data-copy-target="[data-reset-value]">Copy</button></div>
+      <p class="field__hint">Shown only once. Share it with the account holder; they can change it under Profile &amp; security.</p>
+    </div>
+    <footer class="dialog__footer"><button type="button" class="btn btn--primary" data-dialog-close>Done</button></footer>
+  </div>
+</dialog>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/admin.js') }}" defer></script>{% endblock %}

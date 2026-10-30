@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Profile &amp; security{% endblock %}
+{% block content %}
+<div data-user-page="profile"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">My account</p>
+    <h1 class="page-title">Profile &amp; security</h1>
+  </div>
+</div>
+
+<div class="grid grid--two">
+  <section class="card card--padded" aria-labelledby="profile-h">
+    <h2 id="profile-h" class="section-title">{{ icon("user") }} Profile</h2>
+    <form class="form" data-profile-form novalidate>
+      <div class="field">
+        <label class="field__label" for="p-username">Username</label>
+        <input class="input" id="p-username" value="{{ account.username }}" disabled>
+        <p class="field__hint">Usernames can’t be changed.</p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="p-display">Display name</label>
+        <input class="input" id="p-display" name="display_name" maxlength="60" value="{{ account.display_name or '' }}" autocomplete="nickname">
+        <p class="field__hint">Shown in the header and greetings. Leave empty to use your username.</p>
+        <p class="field__error" data-error-for="display_name" hidden></p>
+      </div>
+      <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Save profile</span></button>
+    </form>
+  </section>
+
+  <section class="card card--padded" aria-labelledby="pw-h">
+    <h2 id="pw-h" class="section-title">{{ icon("lock") }} Change password</h2>
+    <form class="form" data-password-form novalidate>
+      <div class="field">
+        <label class="field__label" for="pw-current">Current password</label>
+        <input class="input" id="pw-current" name="current_password" type="password" autocomplete="current-password" maxlength="128" required>
+        <p class="field__error" data-error-for="current_password" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="pw-new">New password</label>
+        <div class="input-group">
+          <input class="input" id="pw-new" name="new_password" type="password" autocomplete="new-password" maxlength="128" required>
+          <button type="button" class="input-group__btn" data-toggle-password="pw-new" aria-pressed="false">Show</button>
+        </div>
+        <p class="field__hint">8–72 characters. You’ll stay signed in here; other devices are signed out.</p>
+        <p class="field__error" data-error-for="new_password" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="pw-confirm">Confirm new password</label>
+        <input class="input" id="pw-confirm" name="confirm_password" type="password" autocomplete="new-password" maxlength="128" required>
+        <p class="field__error" data-error-for="confirm_password" hidden></p>
+      </div>
+      <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Update password</span></button>
+    </form>
+  </section>
+</div>
+
+<section class="card card--padded" aria-labelledby="acct-h">
+  <h2 id="acct-h" class="section-title">{{ icon("info") }} Account information</h2>
+  <dl class="details details--four">
+    <div><dt>Account ID</dt><dd class="mono">#{{ account.id }}</dd></div>
+    <div><dt>Status</dt><dd><span class="badge badge--{{ account.status }}">{{ account.status | capitalize }}</span></dd></div>
+    <div><dt>Member since</dt><dd><time data-ts="{{ account.created_at | iso_utc }}" data-ts-format="date">{{ account.created_at | utc_display }}</time></dd></div>
+    <div><dt>Last sign-in</dt><dd>{% if account.last_login_at %}<time data-ts="{{ account.last_login_at | iso_utc }}">{{ account.last_login_at | utc_display }}</time>{% else %}—{% endif %}</dd></div>
+  </dl>
+</section>
+
+<div class="grid grid--two">
+  <section class="card card--padded" aria-labelledby="recovery-h">
+    <h2 id="recovery-h" class="section-title">{{ icon("key") }} Recovery codes</h2>
+    <p class="muted small">If you forget your password, use one of these codes on the <strong>Forgot password?</strong> page to choose a new one. Each code works once.</p>
+    <p class="recovery-status" data-recovery-status data-remaining="{{ recovery_codes_remaining }}">
+      {% if recovery_codes_remaining %}<span class="badge badge--active">{{ recovery_codes_remaining }} unused</span>
+      {% else %}<span class="badge badge--inactive">None yet</span>{% endif %}
+    </p>
+    <form class="form" data-recovery-form novalidate>
+      <div class="field">
+        <label class="field__label" for="rc-password">Confirm your password</label>
+        <input class="input" id="rc-password" name="password" type="password" autocomplete="current-password" maxlength="1024" required>
+        <p class="field__error" data-error-for="password" hidden></p>
+      </div>
+      <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span>
+        <span data-label>{{ 'Replace my codes' if recovery_codes_remaining else 'Create recovery codes' }}</span></button>
+      {% if recovery_codes_remaining %}<p class="field__hint">Creating new codes cancels the old ones.</p>{% endif %}
+    </form>
+    <div class="recovery-codes" data-recovery-codes hidden>
+      <div class="alert alert--success" role="status">Save these codes now (print them or store them in a password manager). They won’t be shown again.</div>
+      <ol class="recovery-codes__list mono" data-recovery-list></ol>
+      <div class="button-row">
+        <button type="button" class="btn btn--secondary btn--sm" data-recovery-copy>Copy codes</button>
+        <button type="button" class="btn btn--ghost btn--sm" data-recovery-hide>I’ve saved them</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card card--padded" aria-labelledby="signins-h">
+    <h2 id="signins-h" class="section-title">{{ icon("clock") }} Recent sign-ins</h2>
+    <p class="muted small">If you don’t recognise one, change your password. That signs out every other device.</p>
+    <ul class="signin-history" data-signins aria-live="polite"><li class="muted small">Loading…</li></ul>
+  </section>
+</div>
+
+<section class="card card--padded card--danger" aria-labelledby="close-h">
+  <h2 id="close-h" class="section-title">{{ icon("logout") }} Close account</h2>
+  <p class="muted small">You’ll be signed out and won’t be able to sign in again. Your balance, history and claims are kept for the record, and the team can reopen the account if you ask through the <a href="/contact">Contact</a> page.</p>
+  <form class="form form--inline" data-close-form novalidate>
+    <div class="field">
+      <label class="field__label" for="close-password">Confirm your password</label>
+      <input class="input" id="close-password" name="password" type="password" autocomplete="current-password" maxlength="1024" required>
+      <p class="field__error" data-error-for="password" hidden></p>
+    </div>
+    <label class="checkbox"><input type="checkbox" name="confirm" required> <span>I understand I won’t be able to sign in after this.</span></label>
+    <p class="field__error" data-error-for="confirm" hidden></p>
+    <button type="submit" class="btn btn--danger" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Close my account</span></button>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/dashboard.js') }}" defer></script>{% endblock %}

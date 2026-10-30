@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Terms &amp; privacy{% endblock %}
+{% block site_content %}
+<section class="page-hero">
+  <div class="site-container">
+    <p class="eyebrow">Legal</p>
+    <h1 class="page-hero__title">Terms of use &amp; privacy</h1>
+    <p class="page-hero__lead">Plain-language terms of use.</p>
+  </div>
+</section>
+<section class="site-section">
+  <div class="site-container prose prose--narrow">
+    <h2>1. About {{ site_name }}</h2>
+    <p>{{ site_name }} helps account holders review account information, follow activity and contact the support team. Administrators maintain account records and respond to account requests.</p>
+    <h2>2. Account balances</h2>
+    <p>Your dashboard displays your current account balance and a history of recorded changes. Each history entry includes the previous balance, the adjustment and the resulting balance.</p>
+    <h2>3. Your account</h2>
+    <p>Keep your password private. Administrators may deactivate accounts that misuse the service; your history is kept. You can ask for your account to be deactivated at any time via the Contact page.</p>
+    <h2>4. Data we store</h2>
+    <ul>
+      <li>Your username and optional display name.</li>
+      <li>A one-way hash of your password (we cannot read your password).</li>
+      <li>Your account value and its history.</li>
+      <li>Messages you send us, and the date of your last sign-in.</li>
+    </ul>
+    <p>Data is stored in a database on the server running this site and is not shared with anyone.</p>
+    <h2>5. Cookies</h2>
+    <p>We use a single, essential session cookie to keep you signed in. No tracking or advertising cookies are used.</p>
+  </div>
+</section>
+{% endblock %}

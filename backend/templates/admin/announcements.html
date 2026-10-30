@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Announcements{% endblock %}
+{% block content %}
+<div data-admin-page="announcements"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1 class="page-title">Announcements</h1>
+    <p class="muted">Published announcements appear at the top of every account holder’s dashboard. Pinned ones are shown first.</p>
+  </div>
+</div>
+
+<div class="grid grid--support">
+  <section class="card card--padded" aria-labelledby="ann-form-h">
+    <h2 id="ann-form-h" class="section-title" data-ann-form-title>New announcement</h2>
+    <form class="form" data-ann-form novalidate>
+      <input type="hidden" name="id" value="">
+      <div class="field">
+        <label class="field__label" for="a-title">Title</label>
+        <input class="input" id="a-title" name="title" maxlength="120" required>
+        <p class="field__error" data-error-for="title" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="a-body">Message</label>
+        <textarea class="input textarea" id="a-body" name="body" rows="5" maxlength="2000" required></textarea>
+        <p class="field__error" data-error-for="body" hidden></p>
+      </div>
+      <fieldset class="segmented segmented--3">
+        <legend class="field__label">Style</legend>
+        <label class="segmented__option"><input type="radio" name="level" value="info" checked><span>Info</span></label>
+        <label class="segmented__option"><input type="radio" name="level" value="success"><span>Good news</span></label>
+        <label class="segmented__option"><input type="radio" name="level" value="warning"><span>Important</span></label>
+      </fieldset>
+      <label class="checkbox"><input type="checkbox" name="published" checked><span>Published (visible to users)</span></label>
+      <label class="checkbox"><input type="checkbox" name="pinned"><span>Pin to the top</span></label>
+      <div class="button-row">
+        <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Publish</span></button>
+        <button type="button" class="btn btn--secondary" data-ann-cancel hidden>Cancel editing</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card" aria-labelledby="ann-list-h">
+    <div class="card__header"><h2 id="ann-list-h" class="section-title">All announcements</h2></div>
+    <div data-ann-list aria-live="polite"></div>
+  </section>
+</div>
+{% endblock %}
+{% block dialogs %}{% include "_balance_dialogs.html" %}{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/admin-pages.js') }}" defer></script>{% endblock %}

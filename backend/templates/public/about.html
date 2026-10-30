@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}About us{% endblock %}
+{% block site_content %}
+<section class="page-hero">
+  <div class="site-container">
+    <p class="eyebrow">About us</p>
+    <h1 class="page-hero__title">Clear account information, backed by a reliable record</h1>
+    <p class="page-hero__lead">{{ site_name }} helps account holders see their current balance, review recent changes and contact the support team in one straightforward place.</p>
+  </div>
+</section>
+
+<section class="site-section">
+  <div class="site-container split split--top">
+    <div class="prose">
+      <h2>Our approach</h2>
+      <p>We believe account information should be easy to understand and easy to trust. Every balance update is recorded in context, showing what changed, when it changed and what the previous and resulting values were.</p>
+      <p>This keeps the account record clear and auditable, without making the experience complicated. The goal is simple: give people access to their account information in a format that is transparent, professional and easy to follow.</p>
+
+      <h2>What you can do here</h2>
+      <ul>
+        <li><strong>Review your balance</strong> and see the current amount recorded for your account.</li>
+        <li><strong>Follow your activity</strong> to understand recent changes and their context.</li>
+        <li><strong>Raise a claim</strong> if you need to report an issue or request a review.</li>
+        <li><strong>Contact support</strong> through the secure support area when you need help.</li>
+      </ul>
+
+      <h2>How the account record works</h2>
+      <p>Each recorded change includes the previous balance, the adjustment made and the balance after the change. This provides a consistent, date-based record that is visible to the account holder and helps support staff respond with context.</p>
+      <p>We keep the process human and clear: the account history is visible, recent changes are easy to review and support can be reached directly when needed.</p>
+    </div>
+
+    <aside class="info-stack">
+      <div class="info-card">
+        <h3>{{ icon("shield", 18) }} Our principles</h3>
+        <dl class="mini-dl">
+          <div><dt>Clarity</dt><dd>Account changes are presented in plain language.</dd></div>
+          <div><dt>Transparency</dt><dd>Every change is recorded with context and timing.</dd></div>
+          <div><dt>Security</dt><dd>Session access is protected and account information remains private.</dd></div>
+        </dl>
+      </div>
+      <div class="info-card info-card--accent">
+        <h3>{{ icon("chat", 18) }} Need help?</h3>
+        <p>Our team is available to answer questions and support account requests.</p>
+        <a class="btn btn--primary btn--sm" href="/contact">Contact us</a>
+        <p class="small">Or email <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

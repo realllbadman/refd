@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% set bare_layout = true %}
+{% block title %}Create account{% endblock %}
+{% block site_main_class %}signin{% endblock %}
+{% block site_content %}
+<div class="signin__grid">
+  <aside class="signin__brand" aria-label="{{ site_name }}">
+    <a class="signin__logo" href="/">
+      <img src="{{ url_for('static', path='images/logo.svg') }}" alt="" width="34" height="34">
+      <span>{{ site_name }}</span>
+    </a>
+    <div class="signin__pitch">
+      <h2>Open your account in under a minute.</h2>
+      <ol class="signin__steps">
+        <li><span>1</span>Choose a username and password</li>
+        <li><span>2</span>Your dashboard opens straight away</li>
+        <li><span>3</span>Follow every change to your balance</li>
+      </ol>
+      <p class="signin__note">No email, ID or bank details required.</p>
+    </div>
+  </aside>
+
+  <section class="signin__panel" aria-labelledby="register-heading">
+    <div class="signin__panel-inner signin__panel-inner--wide">
+      <a class="signin__mobile-logo" href="/">
+        <img src="{{ url_for('static', path='images/logo.svg') }}" alt="" width="30" height="30"><span>{{ site_name }}</span>
+      </a>
+      <h1 id="register-heading" class="signin__title">Create your account</h1>
+      <p class="signin__subtitle">Just a username and a password.</p>
+
+      {% if not registration_open %}
+      <div class="alert alert--info" role="status">New sign-ups are currently closed. Please check back later or <a href="/contact">contact us</a>.</div>
+      {% else %}
+      {% if error %}<div class="alert alert--error" role="alert" id="register-error">{{ error }}</div>{% endif %}
+      <form method="post" action="/register" class="form" data-register-form novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="field">
+          <label class="field__label" for="r-username">Username</label>
+          <input class="input input--lg" id="r-username" name="username" maxlength="32" required autocomplete="username"
+                 autocapitalize="none" spellcheck="false" value="{{ form.username }}" aria-describedby="r-username-hint"
+                 {% if errors.username %}aria-invalid="true"{% endif %} autofocus>
+          <p class="field__hint" id="r-username-hint">3–32 characters: letters, numbers, “.”, “_” or “-”.</p>
+          <p class="field__error" data-error-for="username" {% if not errors.username %}hidden{% endif %}>{{ errors.username or '' }}</p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="r-display">Display name <span class="muted">(optional)</span></label>
+          <input class="input input--lg" id="r-display" name="display_name" maxlength="60" autocomplete="nickname" value="{{ form.display_name }}">
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label class="field__label" for="r-password">Password</label>
+            <div class="input-group">
+              <input class="input input--lg" id="r-password" name="password" type="password" maxlength="128" required autocomplete="new-password" aria-describedby="r-password-hint">
+              <button type="button" class="input-group__btn" data-toggle-password="r-password" aria-pressed="false">Show</button>
+            </div>
+            <div class="strength" aria-hidden="true"><span data-strength-bar></span></div>
+            <p class="field__hint" id="r-password-hint" data-strength-label>At least 8 characters.</p>
+            <p class="field__error" data-error-for="password" {% if not errors.password %}hidden{% endif %}>{{ errors.password or '' }}</p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="r-confirm">Confirm password</label>
+            <input class="input input--lg" id="r-confirm" name="confirm_password" type="password" maxlength="128" required autocomplete="new-password">
+            <p class="field__error" data-error-for="confirm_password" {% if not errors.confirm_password %}hidden{% endif %}>{{ errors.confirm_password or '' }}</p>
+          </div>
+        </div>
+        <label class="checkbox">
+          <input type="checkbox" name="accept_terms" value="1" required>
+          <span>I have read and agree to the <a href="/terms" target="_blank" rel="noopener">terms</a>.</span>
+        </label>
+        <p class="field__error" data-error-for="accept_terms" {% if not errors.accept_terms %}hidden{% endif %}>{{ errors.accept_terms and 'Please confirm to continue.' or '' }}</p>
+        <button type="submit" class="btn btn--primary btn--block" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Create account</span></button>
+      </form>
+      {% endif %}
+      <p class="signin__switch">Already have an account? <a href="/login">Sign in</a></p>
+      <p class="signin__foot"><a href="/">{{ icon("arrow-right", 14) }} Back to home</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/public.js') }}" defer></script>{% endblock %}

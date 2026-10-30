@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta name="color-scheme" content="light">
+  <title>{% block title %}{{ site_name }}{% endblock %} · {{ site_name }}</title>
+  <link rel="icon" href="{{ url_for('static', path='images/logo.svg') }}" type="image/svg+xml">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ url_for('static', path='fonts/inter-600.woff2') }}">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ url_for('static', path='fonts/figtree-800.woff2') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+</head>
+<body class="{% if current_user %}app-body{% else %}site-body{% endif %} {% block body_class %}{% endblock %}">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+{% if current_user %}
+  {# ===================== signed-in application shell ===================== #}
+  <header class="topbar">
+    <div class="topbar__inner">
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sidebar" data-nav-toggle>
+        {{ icon("menu", 20) }}<span class="visually-hidden">Menu</span>
+      </button>
+      <a class="brand" href="{{ '/admin' if current_user.is_admin else '/dashboard' }}">
+        <img src="{{ url_for('static', path='images/logo.svg') }}" alt="" width="28" height="28">
+        <span class="brand__name">{{ site_name }}</span>
+        {% if current_user.is_admin %}<span class="brand__tag">Admin</span>{% endif %}
+      </a>
+      <div class="account-menu">
+        <span class="account-menu__avatar" aria-hidden="true">{{ current_user.username[:1] | upper }}</span>
+        <span class="account-menu__name">
+          <span class="visually-hidden">Signed in as </span><span data-header-name>{{ current_user.display_name or current_user.username }}</span>
+          <small>{{ 'Administrator' if current_user.is_admin else '@' ~ current_user.username }}</small>
+        </span>
+        <form method="post" action="/logout" class="account-menu__logout">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="btn btn--ghost-light btn--sm">{{ icon("logout", 16) }}<span class="hide-sm">Sign out</span></button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell">
+    <nav class="sidebar" id="sidebar" aria-label="Primary">
+      {% macro nav_item(href, key, label, ico, badge=None, badge_label="unread") -%}
+      <li><a href="{{ href }}" class="sidebar__link" {% if active_nav == key %}aria-current="page"{% endif %}>
+        {{ icon(ico) }}<span>{{ label }}</span>
+        {% if badge %}<span class="sidebar__badge" aria-label="{{ badge }} {{ badge_label }}">{{ badge }}</span>{% endif %}
+      </a></li>
+      {%- endmacro %}
+      {% if current_user.is_admin %}
+      <p class="sidebar__heading">Administration</p>
+      <ul class="sidebar__list">
+        {{ nav_item("/admin", "overview", "Overview", "grid") }}
+        {{ nav_item("/admin/accounts", "accounts", "Accounts", "users") }}
+        {{ nav_item("/admin/claims", "claims", "Refund claims", "activity", unread_claims or None, "open") }}
+        {{ nav_item("/admin/approvals", "approvals", "Approvals", "check", pending_approvals or None, "waiting") }}
+        {{ nav_item("/admin/activity", "activity", "Activity ledger", "activity") }}
+        {{ nav_item("/admin/messages", "messages", "Messages", "inbox", unread_messages or None) }}
+        {{ nav_item("/admin/announcements", "announcements", "Announcements", "megaphone") }}
+      </ul>
+      <p class="sidebar__heading">System</p>
+      <ul class="sidebar__list">
+        {{ nav_item("/admin/audit", "audit", "Audit log", "shield") }}
+        {{ nav_item("/admin/settings", "settings", "Settings", "settings") }}
+        {{ nav_item("/admin/security", "security", "My security", "lock") }}
+        {{ nav_item("/", "site", "Public website", "globe") }}
+      </ul>
+      {% else %}
+      <p class="sidebar__heading">My account</p>
+      <ul class="sidebar__list">
+        {{ nav_item("/dashboard", "dashboard", "Overview", "grid") }}
+        {{ nav_item("/dashboard/activity", "activity", "Activity", "activity") }}
+        {{ nav_item("/dashboard/claims", "claims", "Refund claims", "activity", claim_updates or None, "new") }}
+        {{ nav_item("/dashboard/support", "support", "Support", "chat", reply_updates or None, "new") }}
+        {{ nav_item("/dashboard/profile", "profile", "Profile & security", "user") }}
+      </ul>
+      <p class="sidebar__heading">More</p>
+      <ul class="sidebar__list">
+        {{ nav_item("/", "site", "Public website", "globe") }}
+        {{ nav_item("/faq", "faq", "Help & FAQ", "book") }}
+      </ul>
+      {% endif %}
+    </nav>
+
+    <main id="main" class="page {% block main_class %}{% endblock %}" tabindex="-1">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+{% else %}
+  {# ===================== public website ===================== #}
+  {% if public_notice %}<div class="site-notice" role="note">{{ icon("info", 16) }} {{ public_notice }}</div>{% endif %}
+  {% if not bare_layout %}
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-brand" href="/">
+        <img src="{{ url_for('static', path='images/logo.svg') }}" alt="" width="32" height="32">
+        <span>{{ site_name }}</span>
+      </a>
+      <button class="nav-toggle nav-toggle--dark" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>
+        {{ icon("menu", 20) }}<span class="visually-hidden">Menu</span>
+      </button>
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        <ul class="site-nav__links">
+          <li><a href="/" {% if active_public == 'home' %}aria-current="page"{% endif %}>Home</a></li>
+          <li><a href="/about" {% if active_public == 'about' %}aria-current="page"{% endif %}>About us</a></li>
+          <li><a href="/faq" {% if active_public == 'faq' %}aria-current="page"{% endif %}>FAQ</a></li>
+          <li><a href="/contact" {% if active_public == 'contact' %}aria-current="page"{% endif %}>Contact</a></li>
+        </ul>
+        <div class="site-nav__actions">
+          {% if visitor %}
+          <a class="btn btn--primary btn--sm" href="{{ '/admin' if visitor.is_admin else '/dashboard' }}">Go to dashboard {{ icon("arrow-right", 16) }}</a>
+          {% else %}
+          <a class="btn btn--secondary btn--sm" href="/login" {% if active_public == 'login' %}aria-current="page"{% endif %}>Sign in</a>
+          {% if registration_open is not defined or registration_open %}
+          <a class="btn btn--primary btn--sm" href="/register">Create account</a>
+          {% endif %}
+          {% endif %}
+        </div>
+      </nav>
+    </div>
+  </header>
+  {% endif %}
+
+  <main id="main" class="{% block site_main_class %}site-main{% endblock %}" tabindex="-1">
+    {% block site_content %}{% block content_public %}<div class="site-container site-section">{{ self.content() }}</div>{% endblock %}{% endblock %}
+  </main>
+
+  {% if not bare_layout %}
+  <footer class="site-footer">
+    <div class="site-container site-footer__grid">
+      <div>
+        <a class="site-brand site-brand--light" href="/">
+          <img src="{{ url_for('static', path='images/logo.svg') }}" alt="" width="28" height="28"><span>{{ site_name }}</span>
+        </a>
+        <p class="site-footer__text">Submit refund claims, follow your account activity and contact support.</p>
+        <p class="site-footer__contact"><a href="mailto:{{ support_email }}">{{ icon("mail", 16) }}<span>{{ support_email }}</span></a></p>
+      </div>
+      <div>
+        <h2 class="site-footer__heading">Explore</h2>
+        <ul class="site-footer__links">
+          <li><a href="/">Home</a></li><li><a href="/about">About us</a></li>
+          <li><a href="/faq">FAQ</a></li><li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="site-footer__heading">Account</h2>
+        <ul class="site-footer__links">
+          <li><a href="/login">Sign in</a></li><li><a href="/register">Create account</a></li>
+          <li><a href="/terms">Terms &amp; privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-container site-footer__bottom">
+      <p>&copy; 2019 {{ site_name }}</p>
+    </div>
+  </footer>
+  {% endif %}
+{% endif %}
+
+  <div class="toast-region" aria-live="polite" aria-atomic="false" data-toast-region></div>
+  {% block dialogs %}{% endblock %}
+
+  <script src="{{ url_for('static', path='js/app.js') }}" defer></script>
+  <script src="{{ url_for('static', path='js/motion.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+  {% if show_chat %}
+  <script src="{{ url_for('static', path='js/smartsupp.js') }}" defer></script>
+  <noscript>Powered by <a href="https://www.smartsupp.com" target="_blank" rel="noopener">Smartsupp</a></noscript>
+  {% endif %}
+</body>
+</html>

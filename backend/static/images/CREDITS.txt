@@ -1,0 +1,6 @@
+Photographs in this folder are from Pexels (https://www.pexels.com),
+used under the Pexels License (free to use, no attribution required).
+- photo-workspace.jpg  — Pexels photo 3756679
+- photo-laptop.jpg     — Pexels photo 3184292
+Used as decorative imagery in an academic demonstration project.
+No endorsement by, or affiliation with, the people shown is implied.

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Approvals{% endblock %}
+{% block content %}
+<div data-admin-page="approvals" data-current-admin-id="{{ current_user.id }}"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1 class="page-title">Balance approvals</h1>
+    <p class="muted">Balance changes at or above the approval threshold wait here for a second administrator. You can’t approve your own requests.</p>
+  </div>
+  <a class="btn btn--secondary btn--sm" href="/admin/settings">{{ icon("settings", 16) }} Threshold settings</a>
+</div>
+
+<section class="card" aria-labelledby="pending-h">
+  <div class="card__header">
+    <div><h2 id="pending-h" class="section-title">Waiting for approval</h2>
+      <p class="muted small">Approving applies the change against the account’s balance at that moment.</p></div>
+  </div>
+  <div data-approvals-pending aria-live="polite"></div>
+</section>
+
+<section class="card" aria-labelledby="recent-h">
+  <div class="card__header"><h2 id="recent-h" class="section-title">Recent decisions</h2></div>
+  <div data-approvals-recent aria-live="polite"></div>
+</section>
+{% endblock %}
+{% block dialogs %}{% include "_balance_dialogs.html" %}{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/admin-pages.js') }}" defer></script>{% endblock %}

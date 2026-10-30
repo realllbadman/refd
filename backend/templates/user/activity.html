@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Activity{% endblock %}
+{% block content %}
+<div data-user-page="activity"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">My account</p>
+    <h1 class="page-title">Activity history</h1>
+    <p class="muted">Every change to your balance, newest first. History is permanent and cannot be edited.</p>
+  </div>
+  <a class="btn btn--secondary btn--sm" href="/api/user/activity/export.csv">{{ icon("download", 16) }} Download CSV</a>
+</div>
+
+<section class="card">
+  <div class="card__header card__header--toolbar">
+    <h2 class="section-title">All changes</h2>
+    <form class="filters" data-activity-filters>
+      <label class="visually-hidden" for="f-type">Type</label>
+      <select class="input select" id="f-type" name="type">
+        <option value="">All types</option><option value="set">Balance set</option><option value="adjust">Adjustments</option>
+      </select>
+      <label class="visually-hidden" for="f-direction">Direction</label>
+      <select class="input select" id="f-direction" name="direction">
+        <option value="">Increases &amp; decreases</option><option value="credit">Increases only</option><option value="debit">Decreases only</option>
+      </select>
+    </form>
+  </div>
+  <div data-activity data-endpoint="/api/user/activity/" data-variant="user"
+       data-empty-title="No matching activity"
+       data-empty-text="Changes made to your balance will be listed here."></div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/dashboard.js') }}" defer></script>{% endblock %}

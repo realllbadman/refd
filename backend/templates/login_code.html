@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% set active_public = 'login' %}
+{% set bare_layout = true %}
+{% block title %}Verification code{% endblock %}
+{% block site_main_class %}signin{% endblock %}
+{% block site_content %}
+<div class="signin__grid">
+  <aside class="signin__brand" aria-label="{{ site_name }}">
+    <a class="signin__logo" href="/">
+      <img src="{{ url_for('static', path='images/logo.svg') }}" alt="" width="34" height="34">
+      <span>{{ site_name }}</span>
+    </a>
+    <div class="signin__pitch">
+      <p class="signin__kicker">Two-step sign-in</p>
+      <h2>One more step</h2>
+      <p class="signin__note">This administrator account is protected with an authenticator app.</p>
+    </div>
+  </aside>
+
+  <section class="signin__panel" aria-labelledby="code-heading">
+    <div class="signin__panel-inner">
+      <a class="signin__mobile-logo" href="/">
+        <img src="{{ url_for('static', path='images/logo.svg') }}" alt="" width="30" height="30"><span>{{ site_name }}</span>
+      </a>
+      <h1 id="code-heading" class="signin__title">Enter your code</h1>
+      <p class="signin__subtitle">Open your authenticator app and enter the 6-digit code for {{ site_name }}.</p>
+
+      {% if error %}<div class="alert alert--error" role="alert" id="code-error">{{ icon("info", 16) }} {{ error }}</div>{% endif %}
+
+      <form method="post" action="/login/code" class="form" data-code-form novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="field">
+          <label class="field__label" for="code">Verification code</label>
+          <input class="input input--lg mono" id="code" name="code" type="text" inputmode="numeric" pattern="[0-9 ]*"
+                 autocomplete="one-time-code" maxlength="8" required autofocus
+                 {% if error %}aria-describedby="code-error" aria-invalid="true"{% endif %}>
+          <p class="field__hint">The code changes every 30 seconds. This step expires after 5 minutes.</p>
+        </div>
+        <button type="submit" class="btn btn--primary btn--block btn--lg" data-submit>
+          <span class="spinner" aria-hidden="true"></span><span data-label>Verify and sign in</span>
+        </button>
+      </form>
+
+      <p class="signin__foot"><a href="/login">{{ icon("arrow-right", 14) }} Start again</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

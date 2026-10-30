@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block title %}Accounts{% endblock %}
+{% block content %}
+<div data-admin-page="overview"
+     data-current-admin-id="{{ current_user.id }}"
+     data-allow-negative="{{ 1 if allow_negative else 0 }}"
+     data-max-cents="{{ max_amount_cents }}"></div>
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1 class="page-title">Accounts</h1>
+    <p class="muted">Search, filter and manage every account. Select rows to act on several at once.</p>
+  </div>
+  <div class="button-row">
+    <a class="btn btn--secondary btn--sm" href="/api/admin/users/export.csv" data-export-link>{{ icon("download", 16) }} Export CSV</a>
+    <button type="button" class="btn btn--primary" data-open-create>{{ icon("plus", 16) }} New account</button>
+  </div>
+</div>
+
+<section aria-labelledby="stats-heading" class="stats" data-stats aria-busy="true">
+  <h2 id="stats-heading" class="visually-hidden">Ledger statistics</h2>
+  <article class="stat card">
+    <div class="stat__top"><h3 class="stat__label">Account holders</h3><span class="stat__icon">{{ icon("users", 18) }}</span></div>
+    <p class="stat__value" data-stat="total_users"><span class="skeleton"></span></p>
+    <p class="stat__meta">Customer accounts</p>
+  </article>
+  <article class="stat card">
+    <div class="stat__top"><h3 class="stat__label">Active accounts</h3><span class="stat__icon">{{ icon("check", 18) }}</span></div>
+    <p class="stat__value" data-stat="active_users"><span class="skeleton"></span></p>
+    <p class="stat__meta" data-stat-meta="inactive_users">&nbsp;</p>
+  </article>
+  <article class="stat card">
+    <div class="stat__top"><h3 class="stat__label">Total balances</h3><span class="stat__icon">{{ icon("wallet", 18) }}</span></div>
+    <p class="stat__value" data-stat="total_balance_display"><span class="skeleton"></span></p>
+    <p class="stat__meta">Sum of account values</p>
+  </article>
+  <article class="stat card">
+    <div class="stat__top"><h3 class="stat__label">Recent activity</h3><span class="stat__icon">{{ icon("activity", 18) }}</span></div>
+    <p class="stat__value" data-stat="recent_activity_count"><span class="skeleton"></span></p>
+    <p class="stat__meta" data-stat-meta="recent_window">Balance changes</p>
+  </article>
+  <p class="alert alert--error stats__error" role="alert" data-stats-error hidden></p>
+</section>
+
+<section class="card" aria-labelledby="users-heading">
+  <div class="card__header card__header--toolbar">
+    <h2 id="users-heading" class="section-title">All accounts</h2>
+    <form class="filters" role="search" data-search-form>
+      <div class="search">
+        <label for="user-search" class="visually-hidden">Search accounts by username, name or ID</label>
+        <span class="search__icon">{{ icon("search", 16) }}</span>
+        <input class="input search__input" id="user-search" name="q" type="search" placeholder="Search name, username or ID" maxlength="64" autocomplete="off">
+      </div>
+      <label class="visually-hidden" for="f-status">Status</label>
+      <select class="input select" id="f-status" name="status">
+        <option value="">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option>
+      </select>
+      <label class="visually-hidden" for="f-role">Role</label>
+      <select class="input select" id="f-role" name="role">
+        <option value="">All roles</option><option value="user">Account holders</option><option value="admin">Administrators</option>
+      </select>
+      <label class="visually-hidden" for="f-sort">Sort</label>
+      <select class="input select" id="f-sort" name="sort">
+        <option value="newest">Newest first</option><option value="oldest">Oldest first</option>
+        <option value="balance_desc">Highest balance</option><option value="balance_asc">Lowest balance</option>
+        <option value="username">Username A–Z</option><option value="last_login">Recently signed in</option>
+      </select>
+    </form>
+  </div>
+  <div class="bulk-bar" data-bulk-bar hidden>
+    <p><strong data-bulk-count>0</strong> selected</p>
+    <div class="button-row">
+      <button type="button" class="btn btn--secondary btn--sm" data-bulk="adjust">Adjust balances</button>
+      <button type="button" class="btn btn--secondary btn--sm" data-bulk="activate">Activate</button>
+      <button type="button" class="btn btn--danger-outline btn--sm" data-bulk="deactivate">Deactivate</button>
+      <button type="button" class="btn btn--ghost btn--sm" data-bulk-clear>Clear</button>
+    </div>
+  </div>
+  <div data-users-table aria-live="polite"></div>
+</section>
+{% endblock %}
+
+{% block dialogs %}
+<dialog class="dialog" id="create-dialog" aria-labelledby="create-dialog-title">
+  <form class="dialog__body" data-create-form novalidate>
+    <header class="dialog__header">
+      <h2 class="dialog__title" id="create-dialog-title">New account</h2>
+      <button type="button" class="icon-btn" data-dialog-close aria-label="Close">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <div data-step="edit">
+      <div class="field">
+        <label class="field__label" for="new-username">Username</label>
+        <input class="input" id="new-username" name="username" type="text" maxlength="32" autocomplete="off"
+               autocapitalize="none" spellcheck="false" aria-describedby="new-username-hint" required>
+        <p class="field__hint" id="new-username-hint">3–32 characters: letters, numbers, “.”, “_” or “-”. Stored in lowercase.</p>
+        <p class="field__error" data-error-for="username" hidden></p>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="new-display">Display name <span class="muted">(optional)</span></label>
+        <input class="input" id="new-display" name="display_name" type="text" maxlength="60" autocomplete="off">
+      </div>
+
+      <fieldset class="segmented">
+        <legend class="field__label">Temporary password</legend>
+        <label class="segmented__option">
+          <input type="radio" name="pw_mode" value="generate" checked>
+          <span>Generate securely</span>
+        </label>
+        <label class="segmented__option">
+          <input type="radio" name="pw_mode" value="manual">
+          <span>Enter manually</span>
+        </label>
+      </fieldset>
+
+      <div class="field" data-manual-password hidden>
+        <label class="field__label" for="new-password">Password</label>
+        <div class="input-group">
+          <input class="input" id="new-password" name="password" type="password" autocomplete="new-password"
+                 maxlength="128" aria-describedby="new-password-hint">
+          <button type="button" class="input-group__btn" data-toggle-password="new-password" aria-pressed="false">Show</button>
+        </div>
+        <p class="field__hint" id="new-password-hint">8–72 characters. Share it with the account holder securely.</p>
+        <p class="field__error" data-error-for="password" hidden></p>
+      </div>
+      <p class="field__hint">New accounts are active, have the account-holder role and start with a $0.00 balance.</p>
+    </div>
+
+    <div data-step="confirm" hidden>
+      <p class="muted">Review the new account before creating it.</p>
+      <dl class="review">
+        <div><dt>Username</dt><dd class="mono" data-review-username></dd></div>
+        <div><dt>Role</dt><dd>Account holder</dd></div>
+        <div><dt>Status</dt><dd>Active</dd></div>
+        <div><dt>Opening balance</dt><dd class="mono">$0.00</dd></div>
+        <div><dt>Password</dt><dd data-review-password></dd></div>
+      </dl>
+    </div>
+
+    <div data-step="done" hidden>
+      <div class="alert alert--success" role="status">
+        Account <strong data-done-username></strong> (<span data-done-id></span>) was created.
+      </div>
+      <div class="secret" data-done-password-block hidden>
+        <p class="field__label">Temporary password</p>
+        <div class="secret__row">
+          <code class="secret__value" data-done-password></code>
+          <button type="button" class="btn btn--secondary btn--sm" data-copy-password>Copy</button>
+        </div>
+        <p class="field__hint">This password is shown only once and is not stored anywhere in readable form. Share it securely.</p>
+      </div>
+    </div>
+
+    <div class="alert alert--error" role="alert" data-dialog-error hidden></div>
+
+    <footer class="dialog__footer">
+      <button type="button" class="btn btn--secondary" data-dialog-close data-cancel>Cancel</button>
+      <button type="button" class="btn btn--secondary" data-back hidden>Back</button>
+      <button type="submit" class="btn btn--primary" data-submit>
+        <span class="spinner" aria-hidden="true"></span>
+        <span data-label>Review</span>
+      </button>
+    </footer>
+  </form>
+</dialog>
+<dialog class="dialog" id="bulk-dialog" aria-labelledby="bulk-dialog-title">
+  <form class="dialog__body" data-bulk-form novalidate>
+    <header class="dialog__header">
+      <h2 class="dialog__title" id="bulk-dialog-title">Adjust balances</h2>
+      <button type="button" class="icon-btn" data-dialog-close aria-label="Close">×</button>
+    </header>
+    <p class="muted">The same signed adjustment is applied to <strong data-bulk-dialog-count>0</strong> selected account holders. Each account is updated separately; any that would break a rule are skipped and reported.</p>
+    <div class="field">
+      <label class="field__label" for="bulk-amount">Adjustment (USD)</label>
+      <div class="input-affix"><span class="input-affix__prefix" aria-hidden="true">$</span>
+        <input class="input mono" id="bulk-amount" name="amount" inputmode="decimal" placeholder="+0.00 or -0.00" maxlength="20" required></div>
+      <p class="field__error" data-error-for="amount" hidden></p>
+    </div>
+    <div class="field">
+      <label class="field__label" for="bulk-reason">Reason <span class="muted">(optional)</span></label>
+      <input class="input" id="bulk-reason" name="reason" maxlength="200" placeholder="e.g. Class participation bonus">
+    </div>
+    <div class="bulk-results" data-bulk-results hidden></div>
+    <div class="alert alert--error" role="alert" data-dialog-error hidden></div>
+    <footer class="dialog__footer">
+      <button type="button" class="btn btn--secondary" data-dialog-close>Close</button>
+      <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Apply to selected</span></button>
+    </footer>
+  </form>
+</dialog>
+{% include "_balance_dialogs.html" %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/admin.js') }}" defer></script>{% endblock %}

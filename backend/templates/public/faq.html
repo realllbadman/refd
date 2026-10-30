@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}FAQ{% endblock %}
+{% block site_content %}
+<section class="page-hero">
+  <div class="site-container">
+    <p class="eyebrow">Help centre</p>
+    <h1 class="page-hero__title">Frequently asked questions</h1>
+    <p class="page-hero__lead">Helpful information about creating an account, reviewing your balance and getting support.</p>
+  </div>
+</section>
+<section class="site-section">
+  <div class="site-container faq">
+    {% set faqs = [
+      ("How do I create an account?", "Use the Create account link from the home page or sign-in page. Choose a username and password, and your account will be ready to use immediately."),
+      ("Do I need to provide card or banking details?", "No. This service does not require card or banking information to create an account or review your balance history."),
+      ("What information appears in my account record?", "Your dashboard shows your current balance, recent activity and a record of each balance change with the previous and resulting values."),
+      ("Who can update my balance?", "Only an administrator can set or adjust an account balance. Every change is recorded in your activity history."),
+      ("Can my activity history be edited or removed?", "No. Account activity is recorded as a permanent, append-only trail so the record remains complete and reliable."),
+      ("I forgot my password. What should I do?", "Use the Contact page and send your username. An administrator can reset the password and provide a temporary one."),
+      ("How do I change my password?", "After signing in, open Profile & security from your dashboard. You can update your password there, and other devices will be signed out automatically."),
+      ("How do I contact the team?", "Use the Contact page or the Support page in your dashboard to send a message and read replies from the team."),
+      ("What if I need to submit a claim?", "Open the Refund claims page from your dashboard, complete the form and the review team will update the status as the claim progresses."),
+    ] %}
+    {% for q, a in faqs %}
+    <details class="faq__item" data-reveal data-reveal-group="faq" {% if loop.first %}open{% endif %}>
+      <summary>{{ q }}</summary>
+      <div class="faq__panel"><p>{{ a }}</p></div>
+    </details>
+    {% endfor %}
+
+    <div class="faq__help">
+      <h2>Need more help?</h2>
+      <p>If you need information that isn’t covered here, send a message and the team will respond as quickly as possible.</p>
+      <a class="btn btn--primary" href="/contact">Ask a question</a>
+      <p class="small">Or email <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+    </div>
+  </div>
+</section>
+{% endblock %}

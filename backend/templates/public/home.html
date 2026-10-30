@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block site_content %}
+{% set account_home = '/admin' if visitor and visitor.is_admin else '/dashboard' %}
+<section class="home-hero">
+  <img class="home-hero__photo" src="{{ url_for('static', path='images/photo-workspace.jpg') }}" alt="" width="1100" height="760" fetchpriority="high">
+  <div class="site-container home-hero__inner">
+    <div class="home-hero__copy">
+      <p class="home-hero__eyebrow">{{ icon("shield", 16) }} Account records, made clear</p>
+      <h1>Every account change, clearly.</h1>
+      <p class="home-hero__lead">Review the balance recorded for your account, follow its history and contact the team from one simple dashboard.</p>
+      <div class="hero__actions">
+        {% if visitor %}
+        <a class="btn btn--primary btn--lg" href="{{ account_home }}">Open my account {{ icon("arrow-right", 18) }}</a>
+        {% else %}
+        {% if registration_open %}<a class="btn btn--primary btn--lg" href="/register">Create an account {{ icon("arrow-right", 18) }}</a>{% endif %}
+        <a class="btn btn--secondary btn--lg" href="/login">Sign in</a>
+        {% endif %}
+      </div>
+    </div>
+    <aside class="home-record" aria-label="Example of an account activity record">
+      <p class="home-record__eyebrow">A clear account history</p>
+      <h2>Each change has context.</h2>
+      <dl>
+        <div><dt>Before</dt><dd>Previous balance</dd></div>
+        <div><dt>Change</dt><dd>Recorded adjustment</dd></div>
+        <div><dt>After</dt><dd>Updated balance</dd></div>
+      </dl>
+      <a href="/faq">How account records work {{ icon("arrow-right", 16) }}</a>
+    </aside>
+  </div>
+</section>
+
+<section class="home-tools" aria-label="Account tools">
+  <div class="home-tools__grid">
+    <a class="home-tool" href="{{ account_home if visitor else '/login?next=%2Fdashboard' }}">
+      <span class="home-tool__icon">{{ icon("wallet", 23) }}</span><span class="home-tool__title">Account overview</span><span class="home-tool__text">Check the balance currently recorded for you.</span>
+    </a>
+    <a class="home-tool" href="{{ '/admin/activity' if visitor and visitor.is_admin else ('/dashboard/activity' if visitor else '/login?next=%2Fdashboard%2Factivity') }}">
+      <span class="home-tool__icon">{{ icon("activity", 23) }}</span><span class="home-tool__title">Activity history</span><span class="home-tool__text">Review each recorded change in order.</span>
+    </a>
+    <a class="home-tool" href="{{ '/admin/messages' if visitor and visitor.is_admin else ('/dashboard/support' if visitor else '/contact') }}">
+      <span class="home-tool__icon">{{ icon("chat", 23) }}</span><span class="home-tool__title">Support</span><span class="home-tool__text">Contact the team and keep replies together.</span>
+    </a>
+    <a class="home-tool" href="{{ '/dashboard/profile' if visitor and not visitor.is_admin else ('/admin/settings' if visitor else '/login?next=%2Fdashboard%2Fprofile') }}">
+      <span class="home-tool__icon">{{ icon("settings" if visitor and visitor.is_admin else "lock", 23) }}</span>
+      <span class="home-tool__title">{{ "Site settings" if visitor and visitor.is_admin else "Account security" }}</span>
+      <span class="home-tool__text">{{ "Manage registration and the public notice." if visitor and visitor.is_admin else "Manage your profile and password." }}</span>
+    </a>
+    <a class="home-tool" href="/faq">
+      <span class="home-tool__icon">{{ icon("book", 23) }}</span><span class="home-tool__title">Help center</span><span class="home-tool__text">Find answers about accounts and records.</span>
+    </a>
+  </div>
+</section>
+
+<section class="home-rate-preview" aria-labelledby="rate-preview-heading">
+  <div class="site-container home-rate-preview__inner">
+    <div class="home-rate-preview__copy">
+      <p class="eyebrow">A clearer way to compare</p>
+      <h2 id="rate-preview-heading">Know what a rate means.</h2>
+      <p>A clear snapshot of a savings rate and its annual percentage yield.</p>
+    </div>
+    <article class="home-rate-card" aria-label="Sample savings rate">
+      <div class="home-rate-card__top"><span>Savings account</span><span class="home-rate-card__tag">Featured</span></div>
+      <p class="home-rate-card__value">3.90<span>%</span></p>
+      <p class="home-rate-card__label">Annual percentage yield (APY)</p>
+    </article>
+  </div>
+</section>
+
+<section class="site-section">
+  <div class="site-container home-explainer" data-reveal>
+    <div class="home-explainer__image">
+      <img src="{{ url_for('static', path='images/photo-laptop.jpg') }}" alt="People reviewing account information together" width="1100" height="760" loading="lazy">
+    </div>
+    <div class="home-explainer__copy">
+      <p class="eyebrow">Know what your account shows</p>
+      <h2 class="section-head__title">Your account information, organized.</h2>
+      <p class="section-head__lead">See the balance currently recorded for your account, when it was updated and the activity behind each change.</p>
+      <ul class="checklist">
+        <li>{{ icon("check", 16) }} See the previous balance, change and resulting balance</li>
+        <li>{{ icon("check", 16) }} Keep account questions and replies in one place</li>
+        <li>{{ icon("check", 16) }} Review account details from any device</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="home-truth" data-reveal>
+  <div class="site-container">
+    <header class="home-truth__heading">
+      <p class="eyebrow eyebrow--lime">Made for account clarity</p>
+      <h2>Everything in its right place.</h2>
+      <p>Useful account details, a complete activity history and support when you need it.</p>
+    </header>
+    <div class="home-truth__grid">
+      <article><span>01</span><h3>Balance at a glance</h3><p>Find your current recorded balance and recent totals in one place.</p></article>
+      <article><span>02</span><h3>Every change in context</h3><p>Review the previous value, adjustment and resulting balance.</p></article>
+      <article><span>03</span><h3>Support connected</h3><p>Send a message and read the team's reply from your account.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="site-section site-section--tinted">
+  <div class="site-container">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">Getting started</p>
+      <h2 class="section-head__title">Your account, in three steps.</h2>
+    </header>
+    <ol class="steps">
+      <li class="step" data-reveal data-reveal-group="step"><span class="step__num">1</span><h3>Create an account</h3><p>Choose a username and password. No email, ID or bank details required.</p></li>
+      <li class="step" data-reveal data-reveal-group="step"><span class="step__num">2</span><h3>Review your record</h3><p>See the account balance, details and recent activity in your dashboard.</p></li>
+      <li class="step" data-reveal data-reveal-group="step"><span class="step__num">3</span><h3>Follow each change</h3><p>When an administrator updates the record, the details appear in your history.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="cta-band" data-reveal>
+  <div class="site-container cta-band__inner">
+    <div><h2>Ready to review your account?</h2><p>Sign in, create an account or contact the team with a question.</p></div>
+    <div class="cta-band__actions">
+      {% if not visitor and registration_open %}<a class="btn btn--light btn--lg" href="/register">Create account</a>{% endif %}
+      <a class="btn btn--ghost-light btn--lg" href="{{ account_home if visitor else '/login' }}">{{ 'Open my account' if visitor else 'Sign in' }}</a>
+      <a class="btn btn--ghost-light btn--lg" href="/contact">Contact us</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

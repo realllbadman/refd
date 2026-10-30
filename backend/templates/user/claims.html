@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Refund claims{% endblock %}
+{% block content %}
+<div data-user-page="claims"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">My account</p>
+    <h1 class="page-title">Refund claims</h1>
+    <p class="muted">Submit a request, follow its review and reply to the team.</p>
+  </div>
+</div>
+
+<div class="claim-layout">
+  <section class="card card--padded" aria-labelledby="claim-form-title">
+    <h2 id="claim-form-title" class="section-title">Start a claim</h2>
+    <form class="form claim-form" data-claim-form novalidate>
+      <div class="field">
+        <label class="field__label" for="claim-merchant">Merchant or seller</label>
+        <input class="input" id="claim-merchant" name="merchant" maxlength="120" required autocomplete="organization">
+        <p class="field__error" data-error-for="merchant" hidden></p>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field__label" for="claim-order">Order reference</label>
+          <input class="input" id="claim-order" name="order_reference" maxlength="80" required>
+          <p class="field__error" data-error-for="order_reference" hidden></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="claim-date">Purchase date</label>
+          <input class="input" id="claim-date" name="purchase_date" type="date" required>
+          <p class="field__error" data-error-for="purchase_date" hidden></p>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field__label" for="claim-amount">Purchase amount (USD)</label>
+          <input class="input" id="claim-amount" name="amount" inputmode="decimal" placeholder="0.00" required>
+          <p class="field__error" data-error-for="amount" hidden></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="claim-reason">Reason</label>
+          <select class="input" id="claim-reason" name="reason" required>
+            <option value="">Choose a reason</option>
+            <option value="not_received">Order not received</option>
+            <option value="damaged">Item arrived damaged</option>
+            <option value="incorrect_item">Incorrect item</option>
+            <option value="duplicate_charge">Duplicate charge</option>
+            <option value="cancelled">Order cancelled</option>
+            <option value="other">Other</option>
+          </select>
+          <p class="field__error" data-error-for="reason" hidden></p>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label" for="claim-description">Tell us what happened</label>
+        <textarea class="input textarea" id="claim-description" name="description" rows="5" maxlength="4000" required></textarea>
+        <p class="field__hint">Include the key details that will help the team review your request.</p>
+        <p class="field__error" data-error-for="description" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="claim-files">Supporting documents <span class="muted">(optional)</span></label>
+        <input class="input input--file" id="claim-files" name="files" type="file" multiple accept="application/pdf,image/jpeg,image/png,image/webp">
+        <p class="field__hint">Receipts, photos or emails. Up to 5 files, PDF, JPEG, PNG or WebP, 8 MB each.</p>
+        <p class="field__error" data-error-for="files" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="claim-email">Email for confirmation <span class="muted">(optional)</span></label>
+        <input class="input" id="claim-email" name="contact_email" type="email" maxlength="120" autocomplete="email">
+        <p class="field__hint">We’ll send a confirmation here and share it with the review team. It isn’t saved to your account.</p>
+        <p class="field__error" data-error-for="contact_email" hidden></p>
+      </div>
+      <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Submit claim</span></button>
+    </form>
+  </section>
+
+  <section class="card claim-list-panel" aria-labelledby="claims-list-title">
+    <div class="card__header card__header--toolbar">
+      <div><h2 id="claims-list-title" class="section-title">Your claims</h2><p class="muted small">Status updates and replies appear here.</p></div>
+      <div class="filters claim-filters">
+        <label class="visually-hidden" for="user-claims-status">Filter claims by status</label>
+        <select class="input" id="user-claims-status" data-user-claims-status>
+          <option value="">All statuses</option><option value="open">Open</option><option value="approved">Approved</option>
+          <option value="declined">Declined</option><option value="cancelled">Cancelled</option>
+        </select>
+        <label class="search search--sm">
+          <span class="visually-hidden">Search your claims</span>
+          <span class="search__icon">{{ icon("search", 16) }}</span>
+          <input class="input search__input" type="search" placeholder="Search claims" maxlength="100" data-user-claims-search>
+        </label>
+      </div>
+    </div>
+    <div class="claim-list" data-claim-list aria-live="polite"></div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/claims.js') }}" defer></script>{% endblock %}

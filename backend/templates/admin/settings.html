@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div data-admin-page="settings"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">System</p>
+    <h1 class="page-title">Settings</h1>
+    <p class="muted">Control how the public website behaves. Changes take effect immediately and are recorded in the audit log.</p>
+  </div>
+</div>
+
+<div class="grid grid--two">
+  <section class="card card--padded" aria-labelledby="site-h">
+    <h2 id="site-h" class="section-title">{{ icon("globe") }} Public website</h2>
+    <form class="form" data-settings-form novalidate aria-busy="true">
+      <label class="switch">
+        <input type="checkbox" name="registration_open" role="switch">
+        <span class="switch__track" aria-hidden="true"></span>
+        <span class="switch__text"><strong>Allow new sign-ups</strong><small>When off, the “Create account” page is closed. Existing accounts can still sign in.</small></span>
+      </label>
+      <div class="field">
+        <label class="field__label" for="set-notice">Site-wide notice</label>
+        <input class="input" id="set-notice" name="public_notice" maxlength="200" placeholder="e.g. Scheduled maintenance on Friday evening.">
+        <p class="field__hint">Shown as a banner at the top of every public page. Leave empty to hide it.</p>
+      </div>
+      <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Save settings</span></button>
+    </form>
+  </section>
+
+  <section class="card card--padded" aria-labelledby="cfg-h">
+    <h2 id="cfg-h" class="section-title">{{ icon("settings") }} Configuration</h2>
+    <p class="muted small">Set in the <code>.env</code> file; change them there and restart the server.</p>
+    <dl class="details details--rows">
+      <div><dt>Site name</dt><dd>{{ site_name }} <span class="muted small">(SITE_NAME)</span></dd></div>
+      <div><dt>Negative balances</dt><dd>{{ 'Allowed' if allow_negative else 'Not allowed' }} <span class="muted small">(ALLOW_NEGATIVE)</span></dd></div>
+      <div><dt>Largest amount</dt><dd>{{ max_amount_cents | money }}</dd></div>
+      <div><dt>Currency</dt><dd>USD (account values)</dd></div>
+      <div><dt>Support email</dt><dd>{{ support_email }} <span class="muted small">(SUPPORT_EMAIL)</span></dd></div>
+      <div><dt>Outgoing email</dt><dd>{{ 'On' if mail_configured else 'Off' }} <span class="muted small">(SMTP_*)</span></dd></div>
+    </dl>
+  </section>
+</div>
+
+<div class="grid grid--two">
+  <section class="card card--padded" aria-labelledby="review-h">
+    <h2 id="review-h" class="section-title">{{ icon("shield") }} Claims &amp; approvals</h2>
+    <form class="form" data-review-settings-form novalidate aria-busy="true">
+      <div class="field">
+        <label class="field__label" for="set-threshold">Second-admin approval threshold (USD)</label>
+        <div class="input-affix">
+          <span class="input-affix__prefix" aria-hidden="true">$</span>
+          <input class="input mono" id="set-threshold" name="approval_threshold" inputmode="decimal" placeholder="0.00" maxlength="20">
+        </div>
+        <p class="field__hint">Balance changes and claim credits of at least this size wait for a different administrator on the <a href="/admin/approvals">Approvals</a> page. Use 0 to turn this off. Needs at least two active administrators.</p>
+        <p class="field__error" data-error-for="approval_threshold" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="set-stale">Stale claim after (days)</label>
+        <input class="input" id="set-stale" name="stale_claim_days" type="number" min="1" max="365" step="1" inputmode="numeric">
+        <p class="field__hint">Claims still “awaiting customer” after this many days can be closed from the Refund claims page.</p>
+        <p class="field__error" data-error-for="stale_claim_days" hidden></p>
+      </div>
+      <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Save</span></button>
+    </form>
+  </section>
+
+  <section class="card card--padded" aria-labelledby="saved-h">
+    <h2 id="saved-h" class="section-title">{{ icon("note") }} Saved replies</h2>
+    <p class="muted small">Reusable text you can insert when replying to claims and messages.</p>
+    <ul class="saved-replies" data-saved-replies aria-live="polite"></ul>
+    <form class="form" data-saved-reply-form novalidate>
+      <input type="hidden" name="id">
+      <div class="field">
+        <label class="field__label" for="sr-title">Title</label>
+        <input class="input" id="sr-title" name="title" maxlength="80" placeholder="e.g. Request a receipt">
+        <p class="field__error" data-error-for="title" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="sr-body">Reply text</label>
+        <textarea class="input textarea" id="sr-body" name="body" rows="4" maxlength="4000"></textarea>
+        <p class="field__error" data-error-for="body" hidden></p>
+      </div>
+      <div class="button-row">
+        <button type="submit" class="btn btn--primary btn--sm" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Add saved reply</span></button>
+        <button type="button" class="btn btn--ghost btn--sm" data-saved-reply-cancel hidden>Cancel edit</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<section class="card card--padded" aria-labelledby="share-h">
+  <h2 id="share-h" class="section-title">{{ icon("link") }} Shareable links</h2>
+  <p class="muted small">Copy these links to share the public website. Anyone who opens them can browse and create an account (if sign-ups are on).</p>
+  <ul class="share-list" data-share-list>
+    {% for path, label in [("/", "Home page"), ("/register", "Create account"), ("/login", "Sign in"), ("/about", "About us"), ("/faq", "FAQ"), ("/contact", "Contact us")] %}
+    <li><span class="share-list__label">{{ label }}</span><code class="share-list__url" data-share-path="{{ path }}">{{ path }}</code>
+      <button type="button" class="btn btn--secondary btn--xs" data-copy-path="{{ path }}">Copy</button></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}
+{% block dialogs %}{% include "_balance_dialogs.html" %}{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/admin-pages.js') }}" defer></script>{% endblock %}

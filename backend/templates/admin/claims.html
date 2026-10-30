@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Refund claims{% endblock %}
+{% block content %}
+<div data-admin-page="claims" data-current-admin-id="{{ current_user.id }}"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1 class="page-title">Refund claims</h1>
+    <p class="muted">Review requests, manage priorities and keep account holders updated.</p>
+  </div>
+  <div class="button-row">
+    <button type="button" class="btn btn--secondary btn--sm" data-close-stale hidden>{{ icon("clock", 16) }} <span data-close-stale-label>Close stale claims</span></button>
+    <a class="btn btn--secondary btn--sm" href="/api/admin/claims/export.csv" data-claims-export>{{ icon("download", 16) }} Export CSV</a>
+  </div>
+</div>
+
+<section class="claim-metrics" data-claim-metrics aria-label="Claim figures">
+  {% for key, label in [("open", "Open"), ("overdue_48h", "No update in 48h"), ("awaiting_customer", "Awaiting customer"), ("average_first_reply", "Avg. first reply"), ("average_resolution", "Avg. decision time"), ("approval_rate", "Approval rate"), ("credited", "Credited via claims")] %}
+  <article class="claim-metric card"><h2 class="claim-metric__label">{{ label }}</h2><p class="claim-metric__value" data-metric="{{ key }}"><span class="skeleton"></span></p></article>
+  {% endfor %}
+</section>
+<details class="card claim-insights" data-claim-insights>
+  <summary class="claim-insights__summary">{{ icon("chart", 16) }} Insights by reason and merchant</summary>
+  <div class="claim-insights__body">
+    <div><h3 class="claim-section-heading">By reason</h3><div data-insight-reasons></div></div>
+    <div><h3 class="claim-section-heading">Most-claimed merchants</h3><div data-insight-merchants></div></div>
+  </div>
+</details>
+
+<div class="claim-admin-layout">
+  <section class="card claim-admin-queue" aria-labelledby="claim-queue-title">
+    <div class="card__header card__header--toolbar">
+      <h2 id="claim-queue-title" class="visually-hidden">Claim queue</h2>
+      <div class="filters claim-filters">
+        <label class="visually-hidden" for="claims-queue">Queue</label>
+        <select class="input" id="claims-queue" data-claims-queue>
+          <option value="">All claims</option>
+          <option value="mine">Assigned to me</option>
+          <option value="unassigned">Unassigned</option>
+          <option value="overdue">No update in 48h</option>
+          <option value="stale">Stale (awaiting customer)</option>
+        </select>
+        <label class="visually-hidden" for="claims-status">Filter by status</label>
+        <select class="input" id="claims-status" data-claims-status>
+          <option value="">All statuses</option>
+          <option value="submitted">Submitted</option>
+          <option value="under_review">Under review</option>
+          <option value="awaiting_customer">Awaiting customer</option>
+          <option value="approved">Approved</option>
+          <option value="declined">Declined</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <label class="visually-hidden" for="claims-priority">Filter by priority</label>
+        <select class="input" id="claims-priority" data-claims-priority>
+          <option value="">All priorities</option>
+          <option value="urgent">Urgent</option>
+          <option value="high">High</option>
+          <option value="normal">Normal</option>
+        </select>
+      </div>
+      <label class="search search--sm">
+        <span class="visually-hidden">Search claims</span>
+        <span class="search__icon">{{ icon("search", 16) }}</span>
+        <input class="input search__input" type="search" placeholder="Order, merchant, account" maxlength="100" data-claims-search>
+      </label>
+    </div>
+    <div class="claim-queue-list" data-claim-queue aria-live="polite"></div>
+  </section>
+  <section class="card claim-admin-detail" data-claim-detail aria-live="polite">
+    <div class="state state--empty">
+      <span class="state__art">{{ icon("inbox", 32) }}</span>
+      <p class="state__title">Select a claim</p>
+      <p class="state__text">Choose a request from the queue to review its details and history.</p>
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block dialogs %}{% include "_balance_dialogs.html" %}{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/admin-pages.js') }}" defer></script>{% endblock %}

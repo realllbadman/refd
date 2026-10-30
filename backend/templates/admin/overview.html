@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Admin overview{% endblock %}
+{% block content %}
+<div data-admin-page="overview-dash" data-current-admin-id="{{ current_user.id }}"></div>
+
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1 class="page-title">Overview</h1>
+    <p class="muted">Welcome back, {{ current_user.label }}. Here’s what is happening across {{ site_name }}.</p>
+  </div>
+  <div class="button-row">
+    <a class="btn btn--secondary btn--sm" href="/api/admin/users/export.csv">{{ icon("download", 16) }} Export accounts</a>
+    <a class="btn btn--primary btn--sm" href="/admin/accounts?new=1">{{ icon("plus", 16) }} New account</a>
+  </div>
+</div>
+
+<section class="stats stats--8" data-stats aria-busy="true" aria-label="Key figures">
+  {% set tiles = [
+    ("total_users", "Account holders", "users", "All customer accounts"),
+    ("active_users", "Active accounts", "check", "inactive_users"),
+    ("new_users_7d", "New sign-ups", "sparkle", "Last 7 days"),
+    ("unread_messages", "Unread messages", "inbox", "Waiting for a reply"),
+    ("total_balance_display", "Total balances", "wallet", "Sum of all account values"),
+    ("average_balance_display", "Average balance", "chart", "Per account holder"),
+    ("recent_activity_count", "Balance changes", "activity", "Last 7 days"),
+    ("total_activity_count", "All-time changes", "clock", "Recorded in the ledger"),
+  ] %}
+  {% for key, label, ico, meta in tiles %}
+  <article class="stat card">
+    <div class="stat__top"><h2 class="stat__label">{{ label }}</h2><span class="stat__icon">{{ icon(ico, 18) }}</span></div>
+    <p class="stat__value" data-stat="{{ key }}"><span class="skeleton"></span></p>
+    <p class="stat__meta" {% if meta == 'inactive_users' %}data-stat-meta="inactive_users"{% endif %}>{{ '' if meta == 'inactive_users' else meta }}</p>
+  </article>
+  {% endfor %}
+  <p class="alert alert--error stats__error" role="alert" data-stats-error hidden></p>
+</section>
+
+<div class="grid grid--two">
+  <section class="card" aria-labelledby="signups-h">
+    <div class="card__header card__header--toolbar">
+      <div><h2 id="signups-h" class="section-title">New sign-ups per day</h2><p class="muted small">Account holders created, by day (UTC).</p></div>
+      <div class="segmented-sm" role="group" aria-label="Chart range" data-range-group>
+        <button type="button" data-range="7">7d</button><button type="button" data-range="30" aria-pressed="true">30d</button><button type="button" data-range="90">90d</button>
+      </div>
+    </div>
+    <div class="chart-box" data-chart="signups"></div>
+  </section>
+  <section class="card" aria-labelledby="net-h">
+    <div class="card__header">
+      <div><h2 id="net-h" class="section-title">Net balance change per day</h2><p class="muted small">Increases minus decreases across all accounts (UTC).</p></div>
+    </div>
+    <div class="chart-box" data-chart="net"></div>
+  </section>
+</div>
+
+<div class="grid grid--three">
+  <section class="card" aria-labelledby="feed-h">
+    <div class="card__header"><h2 id="feed-h" class="section-title">Latest balance changes</h2><a class="text-link small" href="/admin/activity">View ledger</a></div>
+    <ul class="feed" data-feed="activity"><li class="feed__empty"><span class="spinner spinner--lg" aria-hidden="true"></span></li></ul>
+  </section>
+  <section class="card" aria-labelledby="signup-feed-h">
+    <div class="card__header"><h2 id="signup-feed-h" class="section-title">Newest accounts</h2><a class="text-link small" href="/admin/accounts">All accounts</a></div>
+    <ul class="feed" data-feed="signups"><li class="feed__empty"><span class="spinner spinner--lg" aria-hidden="true"></span></li></ul>
+  </section>
+  <section class="card" aria-labelledby="top-h">
+    <div class="card__header"><h2 id="top-h" class="section-title">Highest balances</h2><a class="text-link small" href="/admin/accounts?sort=balance_desc">Ranked list</a></div>
+    <ul class="feed" data-feed="top"><li class="feed__empty"><span class="spinner spinner--lg" aria-hidden="true"></span></li></ul>
+  </section>
+</div>
+
+<section class="card card--padded" aria-labelledby="qa-h">
+  <h2 id="qa-h" class="section-title">Quick actions</h2>
+  <div class="action-grid">
+    <a class="action-tile" href="/admin/accounts?new=1">{{ icon("plus", 20) }}<strong>Create account</strong><span>Add an account holder with a temporary password</span></a>
+    <a class="action-tile" href="/admin/claims">{{ icon("inbox", 20) }}<strong>Review refund claims</strong><span>Check requests, update status and reply to account holders</span></a>
+    <a class="action-tile" href="/admin/announcements">{{ icon("megaphone", 20) }}<strong>Post announcement</strong><span>Show a message on every user dashboard</span></a>
+    <a class="action-tile" href="/admin/messages">{{ icon("inbox", 20) }}<strong>Answer messages</strong><span>Reply to contact and support requests</span></a>
+    <a class="action-tile" href="/admin/activity">{{ icon("download", 20) }}<strong>Export ledger</strong><span>Filter and download balance activity as CSV</span></a>
+    <a class="action-tile" href="/admin/settings">{{ icon("settings", 20) }}<strong>Site settings</strong><span>Open or close sign-ups, set a site notice</span></a>
+    <a class="action-tile" href="/admin/audit">{{ icon("shield", 20) }}<strong>Audit log</strong><span>Review every administrative action</span></a>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/charts.js') }}" defer></script><script src="{{ url_for('static', path='js/admin-pages.js') }}" defer></script>{% endblock %}

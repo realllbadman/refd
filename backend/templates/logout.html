@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Sign out{% endblock %}
+{% block content %}
+<div class="narrow">
+  <section class="card card--padded" aria-labelledby="logout-heading">
+    <h1 id="logout-heading" class="section-title">Sign out of {{ site_name }}?</h1>
+    <p class="muted">You are signed in as <strong>{{ current_user.username }}</strong>.</p>
+    <form method="post" action="/logout" class="button-row">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit" class="btn btn--primary">Sign out</button>
+      <a class="btn btn--secondary" href="/">Cancel</a>
+    </form>
+  </section>
+</div>
+{% endblock %}

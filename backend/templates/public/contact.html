@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Contact us{% endblock %}
+{% block site_content %}
+<section class="page-hero">
+  <div class="site-container">
+    <p class="eyebrow">Contact</p>
+    <h1 class="page-hero__title">We’d love to hear from you</h1>
+    <p class="page-hero__lead">Questions about your account, a claim or a password reset? Send us a message.</p>
+  </div>
+</section>
+<section class="site-section">
+  <div class="site-container split split--top">
+    <div class="card card--padded">
+      {% if sent %}
+      <div class="success-state" role="status">
+        <span class="success-state__icon">{{ icon("check", 28) }}</span>
+        <h2>Message sent</h2>
+        <p>Thanks for getting in touch. An administrator will read your message soon.{% if visitor %} You can also follow replies on your <a href="/dashboard/support">Support page</a>.{% endif %}</p>
+        <a class="btn btn--secondary" href="/contact">Send another message</a>
+      </div>
+      {% else %}
+      <h2 class="section-title">Send a message</h2>
+      {% if error %}<div class="alert alert--error" role="alert">{{ error }}</div>{% endif %}
+      <form method="post" action="/contact" class="form" data-contact-form novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="form-row">
+          <div class="field">
+            <label class="field__label" for="c-name">Your name</label>
+            <input class="input" id="c-name" name="name" maxlength="80" required value="{{ form.name }}" autocomplete="name" {% if errors.name %}aria-invalid="true"{% endif %}>
+            {% if errors.name %}<p class="field__error">{{ errors.name }}</p>{% endif %}
+          </div>
+          <div class="field">
+            <label class="field__label" for="c-email">Email <span class="muted">(optional)</span></label>
+            <input class="input" id="c-email" name="email" type="email" maxlength="120" value="{{ form.email }}" autocomplete="email" {% if errors.email %}aria-invalid="true"{% endif %}>
+            <p class="field__hint">So we can confirm we got your message and reply by email.</p>
+            {% if errors.email %}<p class="field__error">{{ errors.email }}</p>{% endif %}
+          </div>
+        </div>
+        <div class="field">
+          <label class="field__label" for="c-subject">Subject</label>
+          <input class="input" id="c-subject" name="subject" maxlength="120" required value="{{ form.subject }}" {% if errors.subject %}aria-invalid="true"{% endif %}>
+          {% if errors.subject %}<p class="field__error">{{ errors.subject }}</p>{% endif %}
+        </div>
+        <div class="field">
+          <label class="field__label" for="c-message">Message</label>
+          <textarea class="input textarea" id="c-message" name="message" rows="6" maxlength="4000" required data-counter="c-message-count" {% if errors.body %}aria-invalid="true"{% endif %}>{{ form.message }}</textarea>
+          <p class="field__hint"><span id="c-message-count">0</span> / 4000</p>
+          {% if errors.body %}<p class="field__error">{{ errors.body }}</p>{% endif %}
+        </div>
+        <div class="hp-field" aria-hidden="true">
+          <label for="c-website">Leave this empty</label>
+          <input id="c-website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+        <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Send message</span></button>
+      </form>
+      {% endif %}
+    </div>
+    <aside class="info-stack">
+      <div class="info-card"><h3>{{ icon("mail", 18) }} Email us</h3><p>Prefer email? Write to us directly.</p>
+        <a class="text-link" href="mailto:{{ support_email }}">{{ support_email }}</a></div>
+      <div class="info-card"><h3>{{ icon("clock", 18) }} Response time</h3><p>We aim to reply within one business day.</p></div>
+      <div class="info-card"><h3>{{ icon("key", 18) }} Forgot your password?</h3><p>Include your username and we’ll reset it with a temporary password.</p></div>
+      <div class="info-card"><h3>{{ icon("chat", 18) }} Already have an account?</h3><p>Use the Support page in your dashboard to see replies next to your messages.</p>
+        <a class="text-link" href="{{ '/dashboard/support' if visitor else '/login?next=%2Fdashboard%2Fsupport' }}">Open support {{ icon("arrow-right", 16) }}</a></div>
+    </aside>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/public.js') }}" defer></script>{% endblock %}

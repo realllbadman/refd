@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+<div data-admin-page="messages"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1 class="page-title">Messages</h1>
+    <p class="muted">Contact-form submissions and support requests from account holders.</p>
+  </div>
+</div>
+
+<div class="inbox">
+  <section class="card inbox__list" aria-labelledby="inbox-h">
+    <div class="card__header card__header--toolbar">
+      <h2 id="inbox-h" class="visually-hidden">Message list</h2>
+      <div class="tabs" role="tablist" aria-label="Filter messages" data-msg-tabs>
+        <button type="button" role="tab" data-status="open" aria-selected="true">Open</button>
+        <button type="button" role="tab" data-status="new" aria-selected="false">Unread</button>
+        <button type="button" role="tab" data-status="archived" aria-selected="false">Archived</button>
+        <button type="button" role="tab" data-status="" aria-selected="false">All</button>
+      </div>
+      <div class="search search--sm">
+        <label class="visually-hidden" for="m-q">Search messages</label>
+        <span class="search__icon">{{ icon("search", 16) }}</span>
+        <input class="input search__input" id="m-q" type="search" placeholder="Search" maxlength="64">
+      </div>
+    </div>
+    <div data-msg-list aria-live="polite"></div>
+  </section>
+
+  <section class="card inbox__detail" aria-live="polite" data-msg-detail>
+    <div class="state state--empty">
+      <span class="state__art">{{ icon("inbox", 32) }}</span>
+      <p class="state__title">Select a message</p>
+      <p class="state__text">Choose a message from the list to read it and reply.</p>
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/admin-pages.js') }}" defer></script>{% endblock %}

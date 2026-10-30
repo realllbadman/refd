@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Audit log{% endblock %}
+{% block content %}
+<div data-admin-page="audit"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">System</p>
+    <h1 class="page-title">Audit log</h1>
+    <p class="muted">A permanent record of sign-ins, account changes, balance changes and administrative actions.</p>
+  </div>
+</div>
+<section class="card">
+  <div class="card__header card__header--toolbar">
+    <h2 class="section-title">Events</h2>
+    <form class="filters" data-audit-filters>
+      <div class="search">
+        <label class="visually-hidden" for="au-q">Search by username</label>
+        <span class="search__icon">{{ icon("search", 16) }}</span>
+        <input class="input search__input" id="au-q" name="q" type="search" placeholder="Username" maxlength="64">
+      </div>
+      <label class="visually-hidden" for="au-action">Category</label>
+      <select class="input select" id="au-action" name="action">
+        <option value="">All events</option>
+        <option value="auth">Sign-ins</option>
+        <option value="account">Account changes</option>
+        <option value="balance">Balance changes</option>
+        <option value="message">Messages</option>
+        <option value="announcement">Announcements</option>
+        <option value="settings">Settings</option>
+      </select>
+    </form>
+  </div>
+  <div data-audit aria-live="polite"></div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/admin-pages.js') }}" defer></script>{% endblock %}

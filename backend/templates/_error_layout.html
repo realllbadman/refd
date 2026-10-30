@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="narrow error-page">
+  <section class="card card--padded" aria-labelledby="error-heading">
+    <p class="error-page__code">{% block code %}{% endblock %}</p>
+    <h1 id="error-heading" class="section-title">{% block heading %}{% endblock %}</h1>
+    <p class="muted">{% block message %}{% endblock %}</p>
+    <div class="button-row">
+      {% if current_user %}
+      <a class="btn btn--primary" href="/">Go to my overview</a>
+      {% else %}
+      <a class="btn btn--primary" href="/login">Sign in</a>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}My security{% endblock %}
+{% block content %}
+<div data-admin-page="security"></div>
+<div class="page-header">
+  <div>
+    <p class="eyebrow">System</p>
+    <h1 class="page-title">My security</h1>
+    <p class="muted">Protect your administrator account with a second step at sign-in.</p>
+  </div>
+</div>
+
+<div class="grid grid--two">
+  <section class="card card--padded" aria-labelledby="totp-h">
+    <h2 id="totp-h" class="section-title">{{ icon("shield") }} Two-step sign-in</h2>
+    <p class="muted small">After your password, you’ll enter a 6-digit code from an authenticator app (for example Google Authenticator, Microsoft Authenticator, 1Password or Bitwarden).</p>
+    <p class="totp-status" data-totp-status>
+      <span class="badge badge--{{ 'active' if current_user.totp_secret else 'inactive' }}">{{ 'On' if current_user.totp_secret else 'Off' }}</span>
+    </p>
+
+    <div data-totp-off {% if current_user.totp_secret %}hidden{% endif %}>
+      <button type="button" class="btn btn--primary" data-totp-start>Set up two-step sign-in</button>
+      <form class="form totp-setup" data-totp-enable hidden novalidate>
+        <ol class="totp-steps">
+          <li>In your authenticator app, add an account by <strong>entering a setup key</strong>.</li>
+          <li>Use this key (time-based):
+            <div class="secret"><div class="secret__row"><code class="secret__value" data-totp-secret></code>
+              <button type="button" class="btn btn--secondary btn--sm" data-copy-target="[data-totp-secret]">Copy</button></div></div>
+            <p class="field__hint">Or open the <a href="#" data-totp-uri>setup link</a> on a device with an authenticator app.</p>
+          </li>
+          <li>Enter the 6-digit code the app shows.</li>
+        </ol>
+        <div class="field">
+          <label class="field__label" for="totp-code">Code from your app</label>
+          <input class="input mono" id="totp-code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
+          <p class="field__error" data-error-for="code" hidden></p>
+        </div>
+        <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Turn on</span></button>
+      </form>
+    </div>
+
+    <form class="form" data-totp-disable {% if not current_user.totp_secret %}hidden{% endif %} novalidate>
+      <p class="muted small">To turn it off, confirm your password and a current code.</p>
+      <div class="field">
+        <label class="field__label" for="totp-off-password">Password</label>
+        <input class="input" id="totp-off-password" name="password" type="password" autocomplete="current-password" maxlength="1024" required>
+        <p class="field__error" data-error-for="password" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="totp-off-code">Code from your app</label>
+        <input class="input mono" id="totp-off-code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
+        <p class="field__error" data-error-for="code" hidden></p>
+      </div>
+      <button type="submit" class="btn btn--danger-outline" data-submit><span class="spinner" aria-hidden="true"></span><span data-label>Turn off</span></button>
+    </form>
+  </section>
+
+  <section class="card card--padded" aria-labelledby="lost-h">
+    <h2 id="lost-h" class="section-title">{{ icon("info") }} Lost your device?</h2>
+    <p class="muted small">Another administrator can turn off two-step sign-in for you from your account page under <strong>Accounts</strong>. Doing so signs you out everywhere and is recorded in the audit log.</p>
+    <p class="muted small">If you are the only administrator, save the setup key somewhere safe when you turn this on. It isn’t shown again, and with it you can add your account to a new device.</p>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='js/admin-pages.js') }}" defer></script>{% endblock %}
